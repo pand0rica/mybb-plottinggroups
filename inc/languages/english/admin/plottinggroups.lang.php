@@ -1,0 +1,38 @@
+<?php
+/**
+ * plottinggroups – English ACP language strings.
+ */
+
+$l['plottinggroups'] = 'Plotting Groups';
+$l['plottinggroups_admin_groups_title'] = 'Plotting groups';
+
+$l['plottinggroups_admin_col_name'] = 'Name';
+$l['plottinggroups_admin_col_description'] = 'Description';
+$l['plottinggroups_admin_col_members'] = 'Members';
+$l['plottinggroups_admin_col_status'] = 'Status';
+$l['plottinggroups_admin_col_controls'] = 'Controls';
+$l['plottinggroups_admin_col_order'] = 'Display order';
+
+$l['plottinggroups_admin_options'] = 'Options';
+$l['plottinggroups_admin_approve'] = 'Approve';
+$l['plottinggroups_admin_edit'] = 'Edit';
+$l['plottinggroups_admin_delete'] = 'Delete';
+$l['plottinggroups_admin_group_delete_confirm'] = 'Delete this plotting group including its memberships?';
+
+$l['plottinggroups_admin_pending'] = 'Waiting for approval';
+$l['plottinggroups_admin_approved_label'] = 'Approved';
+$l['plottinggroups_admin_submitted_by'] = 'Proposed by';
+$l['plottinggroups_admin_no_groups'] = 'No plotting groups yet.';
+
+$l['plottinggroups_admin_add_group'] = 'Add group';
+$l['plottinggroups_admin_edit_group'] = 'Edit group';
+$l['plottinggroups_admin_save'] = 'Save';
+$l['plottinggroups_admin_cancel'] = 'Cancel';
+
+$l['plottinggroups_admin_group_approved'] = 'The plotting group has been approved.';
+$l['plottinggroups_admin_group_deleted'] = 'The plotting group has been deleted.';
+$l['plottinggroups_admin_group_saved'] = 'The plotting group has been saved.';
+
+$l['plottinggroups_error_invalid_group'] = 'This plotting group does not exist.';
+$l['plottinggroups_error_group_name_missing'] = 'Please enter a group name.';
+$l['plottinggroups_error_group_name_exists'] = 'A plotting group with this name already exists.';

@@ -1,0 +1,20 @@
+# IDE / editor
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backups & dumps
+*.bak
+*.backup
+*.sql
+
+# Forum post (generated German BBCode post, not code)
+PLUGIN_POST.html
+
+# Internal development docs
+TESTING.md
+DELIVERY_SUMMARY.md

@@ -1,0 +1,30 @@
+/* plottinggroups – plotting group styles. Structural only; colours come from
+   the theme classes (thead/tcat/trow1/trow2) wherever possible. */
+
+.plottinggroups_inline_form {
+    display: inline;
+}
+
+.plottinggroups_button_small {
+    font-size: 0.9em;
+    padding: 2px 8px;
+}
+
+.plottinggroups_member_table {
+    margin-top: 12px;
+}
+
+.plottinggroups_badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 9px;
+    font-size: 0.85em;
+    line-height: 1.6;
+    white-space: nowrap;
+}
+
+.plottinggroups_badge--pending {
+    background: #f9edbe;
+    border: 1px solid #e0c243;
+    color: #6b5900;
+}
