@@ -28,3 +28,121 @@
     border: 1px solid #e0c243;
     color: #6b5900;
 }
+
+/* Board-index alert for the team while proposals are waiting. Same shape as the
+   Projektbörse index alerts so both plugins read as one system. */
+.plottinggroups_notice {
+    padding: 10px 14px;
+    margin: 10px 0;
+    border: 1px solid #ffc107;
+    background: #fff3cd;
+    color: #000;
+}
+
+.plottinggroups_notice a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+/* Intro box above the groups table. Uses the theme's tborder/thead/trow1
+   classes so it matches the groups table; only spacing and the inline code
+   sample are styled here. */
+.plottinggroups_info {
+    margin-bottom: 10px;
+}
+
+.plottinggroups_info p {
+    margin: 0 0 8px;
+}
+
+.plottinggroups_info ul {
+    margin: 0;
+    padding-left: 22px;
+}
+
+.plottinggroups_info li {
+    margin: 2px 0;
+}
+
+.plottinggroups_info code {
+    padding: 1px 5px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+/* Rendered #"Group name" tag inside a post: a linked pill to the group. */
+.plottinggroups_tag,
+a.plottinggroups_tag:link,
+a.plottinggroups_tag:visited {
+    display: inline-block;
+    padding: 0 8px;
+    border-radius: 10px;
+    background: #2a5885;
+    color: #fff !important;
+    font-weight: bold;
+    font-size: 0.9em;
+    line-height: 1.7;
+    text-decoration: none !important;
+    white-space: nowrap;
+    vertical-align: baseline;
+}
+
+a.plottinggroups_tag:hover,
+a.plottinggroups_tag:active {
+    background: #34689f;
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
+/* #-tag autocomplete dropdown (post editor). position:fixed – the script
+   positions it at the caret in viewport coordinates. */
+.plottinggroups_ac {
+    position: fixed;
+    z-index: 99999;
+    min-width: 160px;
+    max-width: 320px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.plottinggroups_ac ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.plottinggroups_ac_item {
+    padding: 4px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.plottinggroups_ac_item.active,
+.plottinggroups_ac_item:hover {
+    background: #2a5885;
+    color: #fff;
+}
+
+.plottinggroups_ac_msg {
+    padding: 4px 10px;
+    color: #666;
+    font-style: italic;
+}
+
+/* "Newest events" button in the member-panel header + the event type label. */
+.plottinggroups_thead_action {
+    float: right;
+    font-weight: normal;
+}
+
+.plottinggroups_event_type {
+    font-weight: bold;
+}

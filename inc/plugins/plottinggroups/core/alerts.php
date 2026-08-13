@@ -91,10 +91,14 @@ class Plottinggroups_Alerts
         return $sent;
     }
 
-    /** New-group alert to every active main account (see getMainAccountUids). */
+    /**
+     * New-group alert on approval. Recipients depend on the
+     * plottinggroups_new_group_main_only setting (see
+     * getNewGroupRecipientUids).
+     */
     public static function sendNewGroup(array $group): int
     {
-        return self::send('plottinggroups_new_group', Plottinggroups_Database::getMainAccountUids(), [
+        return self::send('plottinggroups_new_group', Plottinggroups_Database::getNewGroupRecipientUids(), [
             'group_name' => (string)$group['name'],
             'link'       => 'plottinggroups.php',
         ], (int)$group['gid']);

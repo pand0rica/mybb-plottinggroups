@@ -74,10 +74,27 @@ check('getGroupMemberUids', $uids === [991, 992]);
 $names = Plottinggroups_Database::groupNamesForGids([$gid_a]);
 check('groupNamesForGids', isset($names[$gid_a]) && $names[$gid_a] === 'SELFTEST Group A');
 
+/* ---- event feed ------------------------------------------------------- */
+
+Plottinggroups_Database::logEvent($gid_a, 'tagged', 'SELFTEST subject',
+    'showthread.php?tid=1&pid=2#pid2', 993, $now - 10);
+Plottinggroups_Database::logEvent($gid_a, 'tagged', 'SELFTEST newer',
+    'showthread.php?tid=1&pid=3#pid3', 993, $now);
+
+$events = Plottinggroups_Database::getStoredEvents($gid_a, 50);
+check('getStoredEvents roundtrip', count($events) === 2);
+check('getStoredEvents newest first',
+    isset($events[0]['title']) && $events[0]['title'] === 'SELFTEST newer');
+check('getStoredEvents scoped to gid', Plottinggroups_Database::getStoredEvents($gid_b, 50) === []);
+
+$plot_events = Plottinggroups_Database::getPlotcpEvents($gid_a, 50);
+check('getPlotcpEvents returns array (guarded)', is_array($plot_events));
+
 /* ---- cleanup ---------------------------------------------------------- */
 
 $db->delete_query('plottinggroups_members', 'gid IN (' . $gid_a . ',' . $gid_b . ')');
 $db->delete_query('plottinggroups_groups', 'gid IN (' . $gid_a . ',' . $gid_b . ')');
+$db->delete_query('plottinggroups_events', 'gid IN (' . $gid_a . ',' . $gid_b . ')');
 
 echo "\n{$passed} passed, {$failed} failed\n";
 exit($failed > 0 ? 1 : 0);

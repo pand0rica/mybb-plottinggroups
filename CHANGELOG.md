@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.1.0] – Unreleased
+
+### New
+
+- **Newest events feed per group**: a "Newest events" button in a group's member
+  panel opens a chronological page (newest first) of everything that would alert
+  the group's members. Clicking an entry jumps to its source (the tagged post,
+  the plot, …). Visible to everyone who can see the groups page; the links still
+  obey the forum's own permissions.
+  - Tagged posts are logged going forward into the new `plottinggroups_events`
+    table (they cannot be reconstructed retroactively).
+  - New published plots are pulled **live** from the Plot Control Panel through a
+    read-only, guarded bridge – retroactive and requiring no change to plotcp.
+- **Extensibility for other plugins**:
+  - `Plottinggroups_Api::logEvent($gid, $type, $title, $link, $uid, $dateline)`
+    lets other plugins push persistent events into a group's feed.
+  - The `plottinggroups_collect_events` hook lets plugins contribute live-derived
+    events on render (`$args = ['gid' => …, 'events' => []]`, append raw rows).
+    Every supplied row is sanitised by the consumer (types cast, link limited to
+    relative or `http(s)`, malformed rows silently dropped); escaping happens only
+    on render.
+
 ## [1.0.0] – Unreleased
 
 ### New
@@ -15,8 +37,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
   (edits do not re-alert); `[quote]` blocks are ignored; the poster is excluded
   and recipients are deduplicated. Optional per-forum restriction via the **Tag
   forums** setting.
-- Group member list on the groups page (with join date); team members can remove
-  a member.
+- Tag autocomplete in the post editor: typing `#` opens a suggestion dropdown
+  (AJAX via `xmlhttp.php`) and inserts the correct `#"Group name"` tag. Works in
+  the SCEditor WYSIWYG view and the plain-text/source view; toggled by the **Tag
+  autocomplete** setting.
+- Tag rendering: `#"Group name"` in a parsed post is shown as a coloured pill
+  linking to the group's member list. Only approved, existing groups become a
+  pill; unknown names stay as plain text.
+- Group member list on the groups page (with join date).
+- Team management in the frontend: approve, edit or reject waiting proposals
+  (approving sends the same "new group" alert as the ModCP), edit and delete
+  approved groups straight from the groups page, and add/remove members in a
+  group's member list (add by exact username). All actions are POST-only,
+  `verify_post_check()`-guarded and gated by
+  `Plottinggroups_Permissions::isTeam()`.
+- Member management in the ACP: a group's edit view lists its members with a
+  **Remove** button and an **Add member** form; reachable via **Manage members**
+  in the group's options menu.
 - Public `Plottinggroups_Api` facade (`approvedGroups`, `groupNames`,
   `memberUids`, `filterApprovedGids`, `groupsUrl`) so other plugins can bind the
   groups without a hard dependency.
@@ -26,6 +63,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - Three MyAlerts alert types (all user-disableable): new group, proposal (team),
   group tagged. English and German (du) language files for frontend, ACP and
   MyAlerts.
+- **New-group alert: main accounts only** setting controls whether the alert
+  about a newly approved group reaches only main accounts or every account.
+  Requires EnhancedAccountSwitcher's `users.as_uid`; without it every account
+  counts as a main account and the setting has no effect.
 
 ### Security
 

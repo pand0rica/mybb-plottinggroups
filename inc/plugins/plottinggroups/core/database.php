@@ -114,6 +114,36 @@ class Plottinggroups_Database
         return array_values(array_unique($names));
     }
 
+    /**
+     * Approved groups whose name contains the given substring (case-insensitive).
+     * Powers the #-autocomplete in the post editor. An empty query returns the
+     * first $limit approved groups so the dropdown can open on a bare "#".
+     *
+     * @return array[] each ['gid' => int, 'name' => string]
+     */
+    public static function searchApprovedGroups(string $query, int $limit = 10): array
+    {
+        global $db;
+
+        $limit = max(1, min(50, $limit));
+
+        $where = 'approved = 1';
+        $query = trim($query);
+        if ($query !== '') {
+            $where .= " AND LOWER(name) LIKE '%"
+                . $db->escape_string_like(my_strtolower($query)) . "%'";
+        }
+
+        $results = [];
+        $q = $db->simple_select('plottinggroups_groups', 'gid, name', $where,
+            ['order_by' => 'name ASC', 'limit' => $limit]);
+        while ($row = $db->fetch_array($q)) {
+            $results[] = ['gid' => (int)$row['gid'], 'name' => (string)$row['name']];
+        }
+
+        return $results;
+    }
+
     /** @return array gid => name for the given gids (any approval state). */
     public static function groupNamesForGids(array $gids): array
     {
@@ -185,6 +215,7 @@ class Plottinggroups_Database
 
         $db->delete_query('plottinggroups_members', 'gid = ' . $gid);
         $db->delete_query('plottinggroups_groups', 'gid = ' . $gid);
+        $db->delete_query('plottinggroups_events', 'gid = ' . $gid);
 
         if ($db->table_exists('plotcp_plot_groups')) {
             $db->delete_query('plotcp_plot_groups', 'gid = ' . $gid);
@@ -234,6 +265,37 @@ class Plottinggroups_Database
         return $members;
     }
 
+    /**
+     * Adds a user to a group. INSERT IGNORE + UNIQUE(gid, uid) makes a repeated
+     * add a no-op instead of an error.
+     *
+     * @return bool true when the membership was newly created
+     */
+    public static function addMember(int $gid, int $uid): bool
+    {
+        global $db;
+
+        if ($gid <= 0 || $uid <= 0) {
+            return false;
+        }
+
+        $db->write_query('INSERT IGNORE INTO ' . TABLE_PREFIX . 'plottinggroups_members
+            (gid, uid, dateline) VALUES (' . $gid . ', ' . $uid . ', ' . TIME_NOW . ')');
+
+        return (int)$db->affected_rows() > 0;
+    }
+
+    public static function removeMember(int $gid, int $uid): void
+    {
+        global $db;
+
+        if ($gid <= 0 || $uid <= 0) {
+            return;
+        }
+
+        $db->delete_query('plottinggroups_members', 'gid = ' . $gid . ' AND uid = ' . $uid);
+    }
+
     public static function isGroupMember(int $gid, int $uid): bool
     {
         global $db;
@@ -256,6 +318,28 @@ class Plottinggroups_Database
         }
 
         return $gids;
+    }
+
+    /**
+     * Resolves a username to a user row (case-insensitive). Used by the team's
+     * "add member" forms in the frontend and the ACP.
+     *
+     * @return array|null ['uid','username'] or null when no such user exists
+     */
+    public static function getUserByUsername(string $username): ?array
+    {
+        global $db;
+
+        $username = trim($username);
+        if ($username === '') {
+            return null;
+        }
+
+        $row = $db->fetch_array($db->simple_select('users', 'uid, username',
+            "LOWER(username) = '" . $db->escape_string(my_strtolower($username)) . "'",
+            ['limit' => 1]));
+
+        return $row ? $row : null;
     }
 
     /** @return array uid => ['uid','username','usergroup','displaygroup'] */
@@ -345,16 +429,24 @@ class Plottinggroups_Database
     }
 
     /**
-     * All active main accounts. With EnhancedAccountSwitcher installed only
-     * accounts with as_uid = 0 (main accounts) are returned; without it every
-     * active user counts. Banned (7) and awaiting activation (5) are excluded.
+     * Recipients of the "new group approved" alert. Banned (7) and awaiting
+     * activation (5) are always excluded.
+     *
+     * The plottinggroups_new_group_main_only setting decides whether sub
+     * accounts are skipped. That restriction needs EnhancedAccountSwitcher's
+     * users.as_uid column – without it every active user is a main account and
+     * the setting has no effect.
      */
-    public static function getMainAccountUids(): array
+    public static function getNewGroupRecipientUids(): array
     {
-        global $db;
+        global $db, $mybb;
 
         $where = 'usergroup NOT IN (5,7)';
-        if ($db->field_exists('as_uid', 'users')) {
+
+        $main_only = !isset($mybb->settings['plottinggroups_new_group_main_only'])
+            || (int)$mybb->settings['plottinggroups_new_group_main_only'] === 1;
+
+        if ($main_only && $db->field_exists('as_uid', 'users')) {
             $where .= ' AND as_uid = 0';
         }
 
@@ -367,5 +459,93 @@ class Plottinggroups_Database
         }
 
         return $uids;
+    }
+
+    /* ---------------------------------------------------------------------
+     * Events (the "newest events" feed)
+     * ------------------------------------------------------------------ */
+
+    /**
+     * Records a persistent event for a group. title/link are stored RAW and
+     * escaped only on render (same convention as the MyAlerts ExtraDetails).
+     */
+    public static function logEvent(int $gid, string $type, string $title, string $link, int $uid, int $dateline): void
+    {
+        global $db;
+
+        if ($gid <= 0) {
+            return;
+        }
+
+        $db->insert_query('plottinggroups_events', [
+            'gid'      => $gid,
+            'type'     => $db->escape_string(substr($type, 0, 40)),
+            'title'    => $db->escape_string(substr($title, 0, 255)),
+            'link'     => $db->escape_string(substr($link, 0, 255)),
+            'uid'      => $uid,
+            'dateline' => $dateline,
+        ]);
+    }
+
+    /**
+     * Stored events of a group, newest first.
+     *
+     * @return array[] each ['type','title','link','uid','dateline']
+     */
+    public static function getStoredEvents(int $gid, int $limit = 100): array
+    {
+        global $db;
+
+        $events = [];
+        $query = $db->simple_select('plottinggroups_events', 'type, title, link, uid, dateline',
+            'gid = ' . $gid, ['order_by' => 'dateline DESC', 'limit' => $limit]);
+        while ($row = $db->fetch_array($query)) {
+            $events[] = [
+                'type'     => (string)$row['type'],
+                'title'    => (string)$row['title'],
+                'link'     => (string)$row['link'],
+                'uid'      => (int)$row['uid'],
+                'dateline' => (int)$row['dateline'],
+            ];
+        }
+
+        return $events;
+    }
+
+    /**
+     * Published plots linked to a group, pulled live from the Plot Control
+     * Panel. Read-only bridge, guarded on the plotcp tables existing, so
+     * plottinggroups keeps working without plotcp. Newest first.
+     *
+     * @return array[] each ['type'=>'plot','title','link','uid','dateline']
+     */
+    public static function getPlotcpEvents(int $gid, int $limit = 100): array
+    {
+        global $db;
+
+        if (!$db->table_exists('plotcp_plot_groups') || !$db->table_exists('plotcp_plots')) {
+            return [];
+        }
+
+        $events = [];
+        $query = $db->query('
+            SELECT p.pid, p.title, p.submitted_uid, p.published_dateline
+            FROM ' . TABLE_PREFIX . 'plotcp_plot_groups pg
+            INNER JOIN ' . TABLE_PREFIX . 'plotcp_plots p ON (p.pid = pg.pid)
+            WHERE pg.gid = ' . (int)$gid . ' AND p.visible = 1
+            ORDER BY p.published_dateline DESC
+            LIMIT ' . (int)$limit . '
+        ');
+        while ($row = $db->fetch_array($query)) {
+            $events[] = [
+                'type'     => 'plot',
+                'title'    => (string)$row['title'],
+                'link'     => 'plotcp.php?action=view&pid=' . (int)$row['pid'],
+                'uid'      => (int)$row['submitted_uid'],
+                'dateline' => (int)$row['published_dateline'],
+            ];
+        }
+
+        return $events;
     }
 }

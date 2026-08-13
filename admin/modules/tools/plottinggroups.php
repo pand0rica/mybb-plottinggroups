@@ -49,6 +49,35 @@ if ($mybb->request_method === 'post') {
         admin_redirect($base_url);
     }
 
+    // Member management – must be handled before the group-name validation below.
+    if ($sub_action === 'add_member' || $sub_action === 'remove_member') {
+        // raw & – this goes into a Location header, not into HTML
+        $edit_url = $base_url . '&do=edit&gid=' . $gid;
+
+        if (!Plottinggroups_Database::getGroup($gid)) {
+            flash_message($lang->plottinggroups_error_invalid_group, 'error');
+            admin_redirect($base_url);
+        }
+
+        if ($sub_action === 'add_member') {
+            $user = Plottinggroups_Database::getUserByUsername((string)$mybb->get_input('username'));
+            if (!$user) {
+                flash_message($lang->plottinggroups_admin_error_user_not_found, 'error');
+                admin_redirect($edit_url);
+            }
+            if (!Plottinggroups_Database::addMember($gid, (int)$user['uid'])) {
+                flash_message($lang->plottinggroups_admin_error_already_member, 'error');
+                admin_redirect($edit_url);
+            }
+            flash_message($lang->plottinggroups_admin_member_added, 'success');
+            admin_redirect($edit_url);
+        }
+
+        Plottinggroups_Database::removeMember($gid, (int)$mybb->get_input('uid', MyBB::INPUT_INT));
+        flash_message($lang->plottinggroups_admin_member_removed, 'success');
+        admin_redirect($edit_url);
+    }
+
     $name = trim((string)$mybb->get_input('name'));
     if ($name === '') {
         flash_message($lang->plottinggroups_error_group_name_missing, 'error');
@@ -123,6 +152,8 @@ foreach ($groups as $gid => $group) {
             "javascript:document.getElementById('approve_group_{$gid}').submit();");
     }
     $popup->add_item($lang->plottinggroups_admin_edit, $base_url . '&amp;do=edit&amp;gid=' . $gid);
+    $popup->add_item($lang->plottinggroups_admin_manage_members,
+        $base_url . '&amp;do=edit&amp;gid=' . $gid . '#plottinggroups_members');
     $popup->add_item($lang->plottinggroups_admin_delete,
         "javascript:document.getElementById('delete_group_{$gid}').submit();",
         "return confirm('" . addslashes($lang->plottinggroups_admin_group_delete_confirm) . "');");
@@ -174,5 +205,63 @@ if ($edit_row) {
 }
 $form->output_submit_wrapper($buttons);
 $form->end();
+
+/* ---------------------------------------------------------------------------
+ * Member management – only while editing a specific group.
+ * ------------------------------------------------------------------------ */
+if ($edit_row) {
+    echo '<a name="plottinggroups_members" id="plottinggroups_members"></a>';
+
+    $member_table = new Table;
+    $member_table->construct_header($lang->plottinggroups_admin_col_member);
+    $member_table->construct_header($lang->plottinggroups_admin_col_joined, ['width' => '30%']);
+    $member_table->construct_header($lang->plottinggroups_admin_col_controls,
+        ['class' => 'align_center', 'width' => '15%']);
+
+    foreach (Plottinggroups_Database::getGroupMembers($edit_id) as $member) {
+        $member_uid = (int)$member['uid'];
+
+        $member_table->construct_cell(htmlspecialchars_uni((string)$member['username']));
+        $member_table->construct_cell(
+            my_date($mybb->settings['dateformat'], (int)$member['dateline']));
+
+        // Raw form (not the ACP Form class) so it can live inside a table cell.
+        $remove = '<form method="post" action="' . htmlspecialchars_uni($base_url) . '" '
+            . 'style="display:inline;" onsubmit="return confirm(\''
+            . addslashes($lang->plottinggroups_admin_member_remove_confirm) . '\');">'
+            . '<input type="hidden" name="sub_action" value="remove_member" />'
+            . '<input type="hidden" name="gid" value="' . $edit_id . '" />'
+            . '<input type="hidden" name="uid" value="' . $member_uid . '" />'
+            . '<input type="hidden" name="my_post_key" value="' . $mybb->post_code . '" />'
+            . '<input type="submit" class="button" value="'
+            . htmlspecialchars_uni($lang->plottinggroups_admin_remove_member) . '" />'
+            . '</form>';
+        $member_table->construct_cell($remove, ['class' => 'align_center']);
+        $member_table->construct_row();
+    }
+
+    if ($member_table->num_rows() === 0) {
+        $member_table->construct_cell($lang->plottinggroups_admin_no_members, ['colspan' => 3]);
+        $member_table->construct_row();
+    }
+
+    $member_table->output($lang->sprintf($lang->plottinggroups_admin_members_title,
+        htmlspecialchars_uni((string)$edit_row['name'])));
+
+    $member_form = new Form($base_url, 'post');
+    echo $member_form->generate_hidden_field('sub_action', 'add_member');
+    echo $member_form->generate_hidden_field('gid', $edit_id);
+
+    $member_container = new FormContainer($lang->plottinggroups_admin_add_member);
+    $member_container->output_row($lang->plottinggroups_admin_username,
+        $lang->plottinggroups_admin_username_desc,
+        $member_form->generate_text_box('username', ''), 'username');
+    $member_container->end();
+
+    $member_form->output_submit_wrapper([
+        $member_form->generate_submit_button($lang->plottinggroups_admin_add_member),
+    ]);
+    $member_form->end();
+}
 
 $page->output_footer();

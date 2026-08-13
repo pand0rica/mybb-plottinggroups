@@ -57,6 +57,21 @@ class Plottinggroups_Installer
             UNIQUE KEY `gid_uid` (`gid`, `uid`),
             KEY `uid` (`uid`)
         ) ENGINE=InnoDB{$collation};");
+
+        // Persistent per-group event log for the "newest events" feed. Only
+        // events that cannot be re-derived (tagged posts, foreign-plugin pushes)
+        // are stored here; plot events are pulled live from plotcp on render.
+        $db->query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "plottinggroups_events` (
+            `eid`      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `gid`      INT UNSIGNED NOT NULL DEFAULT 0,
+            `type`     VARCHAR(40) NOT NULL DEFAULT '',
+            `title`    VARCHAR(255) NOT NULL DEFAULT '',
+            `link`     VARCHAR(255) NOT NULL DEFAULT '',
+            `uid`      INT UNSIGNED NOT NULL DEFAULT 0,
+            `dateline` INT UNSIGNED NOT NULL DEFAULT 0,
+            PRIMARY KEY (`eid`),
+            KEY `gid_dateline` (`gid`, `dateline`)
+        ) ENGINE=InnoDB{$collation};");
     }
 
     /**
@@ -99,6 +114,7 @@ class Plottinggroups_Installer
 
         $db->drop_table('plottinggroups_groups');
         $db->drop_table('plottinggroups_members');
+        $db->drop_table('plottinggroups_events');
     }
 
     /**
@@ -119,8 +135,18 @@ class Plottinggroups_Installer
             ],
             'tag_forums' => [
                 'Tag forums',
-                'Forums in which tagging a group with #"Group name" inside a post alerts the group members. Leave empty to allow tagging in every forum.',
+                'Forums in which tagging a group with #"Group name" inside a post alerts the group members.',
                 'forumselect', '',
+            ],
+            'new_group_main_only' => [
+                'New-group alert: main accounts only',
+                'On: the alert about a newly approved plotting group only goes to main accounts. Off: every account receives it, sub accounts included. Requires the EnhancedAccountSwitcher plugin – without it every account counts as a main account and this setting has no effect.',
+                'onoff', '1',
+            ],
+            'autocomplete' => [
+                'Tag autocomplete',
+                'Show a suggestion dropdown in the post editor when a user types # so they can pick an existing plotting group. Inserts the #"Group name" tag automatically.',
+                'onoff', '1',
             ],
         ];
     }
@@ -234,7 +260,7 @@ class Plottinggroups_Installer
             return;
         }
 
-        $attachedto = 'index.php|plottinggroups.php|showthread.php';
+        $attachedto = 'index.php|plottinggroups.php|showthread.php|newthread.php|newreply.php|editpost.php';
         $css = $db->escape_string((string)file_get_contents($css_path));
         $themes = $db->simple_select('themes', 'tid');
         while ($theme = $db->fetch_array($themes)) {

@@ -33,6 +33,22 @@ $l['plottinggroups_admin_group_approved'] = 'The plotting group has been approve
 $l['plottinggroups_admin_group_deleted'] = 'The plotting group has been deleted.';
 $l['plottinggroups_admin_group_saved'] = 'The plotting group has been saved.';
 
+// Member management
+$l['plottinggroups_admin_manage_members'] = 'Manage members';
+$l['plottinggroups_admin_members_title'] = 'Members of {1}';
+$l['plottinggroups_admin_col_member'] = 'Member';
+$l['plottinggroups_admin_col_joined'] = 'Member since';
+$l['plottinggroups_admin_no_members'] = 'This plotting group has no members yet.';
+$l['plottinggroups_admin_add_member'] = 'Add member';
+$l['plottinggroups_admin_remove_member'] = 'Remove';
+$l['plottinggroups_admin_username'] = 'Username';
+$l['plottinggroups_admin_username_desc'] = 'The exact username of the user to add to this plotting group.';
+$l['plottinggroups_admin_member_remove_confirm'] = 'Remove this member from the plotting group?';
+$l['plottinggroups_admin_member_added'] = 'The user has been added to the plotting group.';
+$l['plottinggroups_admin_member_removed'] = 'The member has been removed from the plotting group.';
+$l['plottinggroups_admin_error_user_not_found'] = 'No user with this name was found.';
+$l['plottinggroups_admin_error_already_member'] = 'This user is already a member of the plotting group.';
+
 $l['plottinggroups_error_invalid_group'] = 'This plotting group does not exist.';
 $l['plottinggroups_error_group_name_missing'] = 'Please enter a group name.';
 $l['plottinggroups_error_group_name_exists'] = 'A plotting group with this name already exists.';

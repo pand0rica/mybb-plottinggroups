@@ -49,7 +49,7 @@ function plottinggroups_cli_status(): void
 {
     global $db, $cache;
 
-    foreach (['plottinggroups_groups', 'plottinggroups_members'] as $table) {
+    foreach (['plottinggroups_groups', 'plottinggroups_members', 'plottinggroups_events'] as $table) {
         echo "table {$table}: " . ($db->table_exists($table) ? 'exists' : 'MISSING') . "\n";
     }
 

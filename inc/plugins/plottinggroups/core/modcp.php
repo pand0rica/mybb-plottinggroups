@@ -116,11 +116,14 @@ class Plottinggroups_Modcp
      */
     public static function buildIndexNotice(int $count): string
     {
-        global $lang, $templates, $theme;
+        global $lang, $templates;
 
         $lang->load('plottinggroups');
 
-        $notice_text = $lang->sprintf($lang->plottinggroups_notice_text, (int)$count);
+        $notice_text = $lang->sprintf(
+            $count === 1 ? $lang->plottinggroups_notice_text_one : $lang->plottinggroups_notice_text,
+            (int)$count
+        );
 
         eval('$notice = "' . $templates->get('plottinggroups_group_notice') . '";');
 
@@ -221,10 +224,17 @@ class Plottinggroups_Modcp
 
         $gid     = (int)$group['gid'];
         $pending = (int)$group['approved'] === 0;
-        $base    = 'modcp.php?action=' . self::ACTION;
 
-        $html = '<a href="' . $base . '&amp;do=edit&amp;gid=' . $gid . '" class="button">'
-            . htmlspecialchars_uni($lang->plottinggroups_modcp_btn_edit) . '</a> ';
+        // GET form rather than a link, so this renders exactly like the submit
+        // buttons next to it. No post key: it only opens the edit form, which
+        // is behind the same team check as this page.
+        $html = '<form action="modcp.php" method="get" class="plottinggroups_inline_form">'
+            . '<input type="hidden" name="action" value="' . self::ACTION . '" />'
+            . '<input type="hidden" name="do" value="edit" />'
+            . '<input type="hidden" name="gid" value="' . $gid . '" />'
+            . '<input type="submit" class="button" value="'
+            . htmlspecialchars_uni($lang->plottinggroups_modcp_btn_edit) . '" />'
+            . '</form> ';
 
         if ($pending) {
             $html .= self::postButton('approve', $gid, $lang->plottinggroups_modcp_btn_approve);

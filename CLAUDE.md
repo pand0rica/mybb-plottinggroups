@@ -28,8 +28,11 @@ Class/core split (modeled on plotcp):
   copy from plotcp's `plotcp_groups`/`plotcp_group_members` (only when our tables
   are empty and plotcp's exist).
 - `core/database.php` – `Plottinggroups_Database`: group CRUD, membership,
-  alert-recipient queries, `getGroupsByNames`/`groupNamesForGids`, and the pure
-  `extractTaggedNames($message)` (strips `[quote]`, scans `#"([^"]+)"`, unique).
+  alert-recipient queries, `getGroupsByNames`/`groupNamesForGids`, the pure
+  `extractTaggedNames($message)` (strips `[quote]`, scans `#"([^"]+)"`, unique),
+  and the event feed: `logEvent`, `getStoredEvents(gid)`, and the guarded
+  read-only plotcp bridge `getPlotcpEvents(gid)` (joins `plotcp_plot_groups` ⋈
+  `plotcp_plots`, `visible=1`, `published_dateline`; `[]` when plotcp absent).
 - `core/permissions.php` – `Plottinggroups_Permissions::isTeam` via own
   `plottinggroups_team_groups` setting (primary AND additionalgroups).
 - `core/alerts.php` – `Plottinggroups_Alerts`: best-effort MyAlerts (class_exists
@@ -37,26 +40,34 @@ Class/core split (modeled on plotcp):
   `sendNewGroup` (approval → main accounts), `sendProposalTeam` (proposal →
   team), `sendGroupTagged` (tag → members).
 - `core/frontend.php` – `Plottinggroups_Frontend::renderGroups` (list / member
-  panel / propose) + `membershipButton`, `removeMemberForm`.
+  panel / propose) + `membershipButton`, `removeMemberForm`, and
+  `renderEvents(gid)` (the "newest events" feed: merges stored + plotcp + hook
+  events via `sanitizeEvent`, sorts newest first). The member-panel header carries
+  a `plottinggroups_btn_events` button → `plottinggroups.php?action=events&gid=`.
 - `core/modcp.php` – `Plottinggroups_Modcp`: team-only proposal review
   (approve/edit/reject) + the two injected fragments. `const ACTION = 'plottinggroups_groups'`.
 - `core/api.php` – **`Plottinggroups_Api`** (public facade): `approvedGroups()`,
   `groupNames(gids)`, `memberUids(gids)`, `filterApprovedGids(gids)`,
-  `groupsUrl()`. Consumers guard with
+  `groupsUrl()`, and `logEvent(gid,type,title,link,uid,dateline)` (push a
+  persistent event into a group's feed; approved-gid-guarded). Consumers guard with
   `function_exists('plottinggroups_load_core')` (= installed AND active) then
   `class_exists('Plottinggroups_Api')`.
 - `myalerts_formatter.php` – one formatter per code; escapes every extra-details
   value on render.
 - `plottinggroups.php` (MyBB root) – frontend entry, dispatch `submit_group`,
-  `join_group`, `leave_group`, `remove_group_member`, default = groups list.
+  `join_group`, `leave_group`, `remove_group_member`, `events` (read-only GET →
+  `renderEvents`), default = groups list.
 - `admin/modules/tools/plottinggroups.php` – ACP module (list + approve/delete +
   add/edit; ACP-created groups auto-approved).
 
 ## Tables
 
 `plottinggroups_groups` (`approved` 0 = pending proposal),
-`plottinggroups_members` (UNIQUE gid,uid). **No** plot link table – that stays in
-plotcp (`plotcp_plot_groups`).
+`plottinggroups_members` (UNIQUE gid,uid),
+`plottinggroups_events` (`gid,type,title,link,uid,dateline`; KEY `gid,dateline`;
+title/link stored RAW, escaped on render). **No** plot link table – that stays in
+plotcp (`plotcp_plot_groups`). `createTables()` is called in `install()` **and**
+`activate()` (idempotent) so upgrades get `plottinggroups_events`.
 
 ## Alert rules
 
@@ -74,7 +85,26 @@ post; insert-only). It reads `$post->data['message'|'fid'|'uid']` + `$post->pid`
 (+ tid from `$post->tid` or `data['tid']`), optionally filters by
 `plottinggroups_tag_forums`, then `extractTaggedNames` → `getGroupsByNames`
 (approved, case-insensitive) → `getGroupMemberUids` (minus poster) →
-`sendGroupTagged`. `[quote]` blocks are stripped before scanning.
+`sendGroupTagged`. `[quote]` blocks are stripped before scanning. After alerting,
+it logs one `plottinggroups_events` row **per matched gid** (`type='tagged'`,
+title = thread subject via `plottinggroups_thread_subject`, link = the showthread
+target) – insert-only, so edits neither re-alert nor re-log.
+
+## The events feed
+
+`renderEvents(gid)` builds a group's chronological feed from three sources, then
+`sanitizeEvent`s each, sorts newest-first and caps at 100:
+
+1. stored events (`getStoredEvents` – tagged posts + `Api::logEvent` pushes),
+2. live plotcp plots (`getPlotcpEvents` – retroactive, guarded, no plotcp change),
+3. the `plottinggroups_collect_events` hook (`$args = ['gid'=>…, 'events'=>[]]`;
+   providers append raw rows `type/title/link/uid/dateline`).
+
+Sanitizing contract (consumer-enforced): cast types, `link` must be relative or
+`http(s)` (blocks `javascript:` etc.), malformed rows silently dropped; **escaping
+happens only on render**. Type label = lang key `plottinggroups_event_type_<type>`
+(fallback: the raw slug). Visible to everyone who can see the groups page; the
+target links still obey the core's own forum permissions.
 
 ## What NOT to change
 
@@ -82,14 +112,21 @@ post; insert-only). It reads `$post->data['message'|'fid'|'uid']` + `$post->pid`
 - Keep gids stable – plotcp's `plotcp_plot_groups.gid` references them
   (migrateData preserves them; new groups just continue AUTO_INCREMENT).
 - Do not remove the `commit()` call in `Plottinggroups_Alerts::send()`.
-- Use the insert-only datahandler hooks for tagging so edits do not re-alert.
+- Use the insert-only datahandler hooks for tagging so edits do not re-alert (and
+  do not re-log events).
+- Keep the plotcp event source a **guarded read-only** bridge (`table_exists`); do
+  not add a hard plotcp dependency or write to plotcp tables.
+- Feed sources deliver RAW `title`/`link`; only `renderEvents` escapes. Keep
+  `sanitizeEvent`'s scheme allow-list (relative or `http(s)` only).
 
 ## Testing
 
 No local MyBB. Deploy via `tar cf - plottinggroups.php inc admin tests | ssh
 <host> "cd <testforum>/httpdocs && tar xf -"`, lint with `php -l` over SSH.
-`tests/cli-plugin.php install|activate|status` (lifecycle + migration counts),
-`tests/cli-selftest.php` (tag extraction + group lookups against SELFTEST
+`tests/cli-plugin.php install|activate|status` (lifecycle + migration counts;
+`plottinggroups_events` must exist after install and be gone after uninstall),
+`tests/cli-selftest.php` (tag extraction + group lookups + a `logEvent` →
+`getStoredEvents` roundtrip and the `getPlotcpEvents` guard, against SELFTEST
 fixtures, cleaned up). `tests/` is not part of a release zip.
 
 **NOTE:** `tests/cli-plugin.php` shares its path with plotcp's on a combined test

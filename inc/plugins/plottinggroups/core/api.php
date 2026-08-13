@@ -58,4 +58,35 @@ class Plottinggroups_Api
     {
         return 'plottinggroups.php';
     }
+
+    /**
+     * Records a persistent event in a group's "newest events" feed. For events
+     * that other plugins cannot re-derive on the fly (use the
+     * 'plottinggroups_collect_events' hook for live-derivable ones instead).
+     *
+     * Only approved groups accept events; invalid gids are silently ignored so
+     * a caller never breaks. title/link are stored RAW and escaped by the feed
+     * on render – pass plain text; link must be relative or http(s).
+     *
+     * @param string $type  short type slug, shown via lang key
+     *                       plottinggroups_event_type_<type> (fallback: the slug)
+     * @param string $title human-readable label (e.g. a plot/thread title)
+     * @param string $link  relative or http(s) URL of the source location
+     */
+    public static function logEvent(int $gid, string $type, string $title, string $link, int $uid = 0, int $dateline = 0): void
+    {
+        if (!Plottinggroups_Database::filterApprovedGids([$gid])) {
+            return;
+        }
+        $type = trim($type);
+        $link = trim($link);
+        if ($type === '' || $link === '') {
+            return;
+        }
+        if ($dateline <= 0) {
+            $dateline = TIME_NOW;
+        }
+
+        Plottinggroups_Database::logEvent($gid, $type, $title, $link, $uid, $dateline);
+    }
 }
