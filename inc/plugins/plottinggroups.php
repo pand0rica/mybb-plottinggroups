@@ -72,7 +72,9 @@ function plottinggroups_deactivate(): void
     require_once MYBB_ROOT . 'inc/plugins/plottinggroups/core/installer.php';
     Plottinggroups_Installer::removeModcpNavInjection();
     Plottinggroups_Installer::removeIndexNoticeInjection();
-    Plottinggroups_Installer::unregisterAlertTypes();
+    // Alert types are NOT removed here: re-adding them on activate would give
+    // them new ids and orphan every existing alert (MyAlerts INNER JOINs
+    // alerts on alert_types.id, so those alerts become invisible).
     Plottinggroups_Installer::removeStylesheet();
     Plottinggroups_Installer::removeTemplates();
     Plottinggroups_Installer::removeSettings();
@@ -81,6 +83,7 @@ function plottinggroups_deactivate(): void
 function plottinggroups_uninstall(): void
 {
     require_once MYBB_ROOT . 'inc/plugins/plottinggroups/core/installer.php';
+    Plottinggroups_Installer::unregisterAlertTypes();
     Plottinggroups_Installer::dropTables();
 }
 
