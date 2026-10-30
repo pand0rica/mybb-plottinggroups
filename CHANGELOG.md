@@ -25,6 +25,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
     relative or `http(s)`, malformed rows silently dropped); escaping happens only
     on render.
 
+### Fixed
+
+- The ModCP navigation entry never appeared: `modcp.php` renders the navigation
+  before the `modcp_start` hook. The entry is now set in `global_intermediate`.
+
 ## [1.0.0] – Unreleased
 
 ### New
