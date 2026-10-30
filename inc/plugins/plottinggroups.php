@@ -19,6 +19,7 @@ $plugins->add_hook('xmlhttp',                         'plottinggroups_register_a
 $plugins->add_hook('xmlhttp',                         'plottinggroups_suggest_xmlhttp');
 $plugins->add_hook('pre_output_page',                 'plottinggroups_inject_editor_assets');
 $plugins->add_hook('index_start',                     'plottinggroups_handle_index_notice');
+$plugins->add_hook('global_intermediate',             'plottinggroups_modcp_nav');
 $plugins->add_hook('modcp_start',                     'plottinggroups_handle_modcp');
 $plugins->add_hook('datahandler_post_insert_post_end',   'plottinggroups_handle_post');
 $plugins->add_hook('datahandler_post_insert_thread_end', 'plottinggroups_handle_post');
@@ -254,15 +255,17 @@ function plottinggroups_handle_index_notice(): void
 }
 
 /**
- * ModCP integration: sets the navigation entry ({$plottinggroups_modcp_nav}) for
- * every ModCP page of a team member and, for our own action, renders the group
- * review page and stops.
+ * ModCP navigation entry ({$plottinggroups_modcp_nav}) for team members. modcp.php renders
+ * modcp_nav before its modcp_start hook, so the entry has to exist earlier.
  */
-function plottinggroups_handle_modcp(): void
+function plottinggroups_modcp_nav(): void
 {
     global $mybb, $plottinggroups_modcp_nav;
 
     $plottinggroups_modcp_nav = '';
+    if (!defined('THIS_SCRIPT') || THIS_SCRIPT !== 'modcp.php') {
+        return;
+    }
 
     plottinggroups_load_core();
     if (!Plottinggroups_Permissions::isTeam($mybb->user)) {
@@ -271,7 +274,21 @@ function plottinggroups_handle_modcp(): void
 
     require_once MYBB_ROOT . 'inc/plugins/plottinggroups/core/modcp.php';
     $plottinggroups_modcp_nav = Plottinggroups_Modcp::navItem();
+}
 
+/**
+ * ModCP integration: for our own action, renders the group review page and stops.
+ */
+function plottinggroups_handle_modcp(): void
+{
+    global $mybb;
+
+    plottinggroups_load_core();
+    if (!Plottinggroups_Permissions::isTeam($mybb->user)) {
+        return;
+    }
+
+    require_once MYBB_ROOT . 'inc/plugins/plottinggroups/core/modcp.php';
     if ($mybb->get_input('action') === Plottinggroups_Modcp::ACTION) {
         Plottinggroups_Modcp::handle();
     }
