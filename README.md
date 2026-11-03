@@ -3,7 +3,7 @@
 A MyBB 1.8 plugin for RPG forums that manages **plotting groups** on their own:
 members create, join and leave groups, propose new ones for team approval, and
 tag a group inside a post to alert its members. Other plugins – such as the
-[Plot Control Panel](https://github.com/pand0rica/plot-cp) – can bind these
+[Plot Control Panel](https://github.com/pand0rica/mybb-plotcp) – can bind these
 groups through a small public API.
 
 ## Features
@@ -46,7 +46,7 @@ No other dependencies.
    forum structure): `plottinggroups.php` → forum root; `inc/plugins/...`,
    `admin/modules/tools/plottinggroups.php`, `inc/languages/...` to the matching
    folders.
-2. **ACP → Configuration → Plugins** → **Activate** "Plotting Groups". If the
+2. **ACP → Configuration → Plugins** → **Install & Activate** "Plotting Groups". If the
    Plot Control Panel already has groups, they are copied over automatically.
 3. **ACP → Configuration → Settings → Plotting Groups** → set the team groups and
    options.
@@ -140,7 +140,7 @@ Each user can toggle these under **User CP → Edit Alert Settings**:
 ## For plugin developers
 
 Known consumers of this API: the
-[Plot Control Panel](https://github.com/pand0rica/plot-cp) (plots ↔ groups) and
+[Plot Control Panel](https://github.com/pand0rica/mybb-plotcp) (plots ↔ groups) and
 the [Projektbörse](https://github.com/pand0rica/projektboerse) (projects ↔
 groups). Keep them in mind when changing `Plottinggroups_Api`.
 
