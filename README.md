@@ -187,6 +187,28 @@ function myplugin_pg_events(array &$args): void
 Label an event type in the feed with the language key
 `plottinggroups_event_type_<type>` (it falls back to the raw slug).
 
+## Screenshots
+
+**Group list with the member panel of a group**
+
+![Plotting groups](docs/screenshots/groups.png)
+
+**Newest events of a group (tagged posts and linked plots)**
+
+![Group events](docs/screenshots/events.png)
+
+**Proposing a new group**
+
+![Propose a group](docs/screenshots/propose.png)
+
+**Reviewing proposals in the ModCP**
+
+![ModCP review](docs/screenshots/modcp-review.png)
+
+**ACP group management**
+
+![ACP groups](docs/screenshots/acp-groups.png)
+
 ## Uninstallation
 
 1. ACP → Configuration → Plugins → **Deactivate** "Plotting Groups" (removes
