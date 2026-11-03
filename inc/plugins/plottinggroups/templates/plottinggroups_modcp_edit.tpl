@@ -27,10 +27,11 @@
 <td class="trow1"><input type="text" class="textbox" name="display_order" value="{$form_order}" size="6" /></td>
 </tr>
 <tr>
-<td class="tfoot" colspan="2" align="center"><input type="submit" class="button" value="{$lang->plottinggroups_modcp_btn_save}" /> <a href="modcp.php?action=plottinggroups_groups" class="button">{$lang->plottinggroups_modcp_btn_cancel}</a></td>
+<td class="tfoot" colspan="2" align="center"><input type="submit" class="button" value="{$lang->plottinggroups_modcp_btn_save}" /> <input type="submit" class="button" form="plottinggroups_cancel_form" value="{$lang->plottinggroups_modcp_btn_cancel}" /></td>
 </tr>
 </table>
 </form>
+<form action="modcp.php" method="get" id="plottinggroups_cancel_form"><input type="hidden" name="action" value="plottinggroups_groups" /></form>
 {$footer}
 </body>
 </html>

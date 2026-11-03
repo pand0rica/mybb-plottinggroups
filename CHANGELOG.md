@@ -30,6 +30,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - The ModCP navigation entry never appeared: `modcp.php` renders the navigation
   before the `modcp_start` hook. The entry is now set in `global_intermediate`.
 
+### Security (review)
+
+- The ACP module now checks the return value of `verify_post_check()` (in the ACP the
+  function does not abort on its own).
+- JavaScript confirm texts are built with `json_encode()` instead of `addslashes()`
+  (ACP, front end, ModCP).
+
+### Changed (review)
+
+- “Newest events” and both “Cancel” actions are real `input.button` submits (GET forms)
+  instead of `<a class="button">` links, matching the other action buttons.
+- German texts: “Benutzer” → “Account”. Stylesheet query no longer quotes the integer `sid`.
+
 ## [1.0.0] – Unreleased
 
 ### New

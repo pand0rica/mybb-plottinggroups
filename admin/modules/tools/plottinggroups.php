@@ -26,7 +26,11 @@ $page->add_breadcrumb_item($lang->plottinggroups, 'index.php?module=tools-plotti
 $base_url = 'index.php?module=tools-plottinggroups';
 
 if ($mybb->request_method === 'post') {
-    verify_post_check($mybb->get_input('my_post_key'));
+    // Im ACP bricht verify_post_check() nicht ab – Rückgabewert prüfen (debugging.md #23)
+    if (!verify_post_check($mybb->get_input('my_post_key'), true)) {
+        flash_message($lang->invalid_post_verify_key2, 'error');
+        admin_redirect($base_url);
+    }
 
     $sub_action = $mybb->get_input('sub_action');
     $gid        = (int)$mybb->get_input('gid', MyBB::INPUT_INT);
@@ -156,7 +160,7 @@ foreach ($groups as $gid => $group) {
         $base_url . '&amp;do=edit&amp;gid=' . $gid . '#plottinggroups_members');
     $popup->add_item($lang->plottinggroups_admin_delete,
         "javascript:document.getElementById('delete_group_{$gid}').submit();",
-        "return confirm('" . addslashes($lang->plottinggroups_admin_group_delete_confirm) . "');");
+        'return confirm(' . htmlspecialchars_uni((string)json_encode($lang->plottinggroups_admin_group_delete_confirm)) . ');');
 
     $forms = '';
     foreach (['approve', 'delete'] as $act) {
@@ -227,8 +231,8 @@ if ($edit_row) {
 
         // Raw form (not the ACP Form class) so it can live inside a table cell.
         $remove = '<form method="post" action="' . htmlspecialchars_uni($base_url) . '" '
-            . 'style="display:inline;" onsubmit="return confirm(\''
-            . addslashes($lang->plottinggroups_admin_member_remove_confirm) . '\');">'
+            . 'style="display:inline;" onsubmit="return confirm('
+            . htmlspecialchars_uni((string)json_encode($lang->plottinggroups_admin_member_remove_confirm)) . ');">'
             . '<input type="hidden" name="sub_action" value="remove_member" />'
             . '<input type="hidden" name="gid" value="' . $edit_id . '" />'
             . '<input type="hidden" name="uid" value="' . $member_uid . '" />'
