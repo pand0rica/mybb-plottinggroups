@@ -32,7 +32,7 @@ class Plottinggroups_Alerts
      */
     public static function send(string $code, array $uids, array $extra, int $object_id = 0): int
     {
-        global $mybb;
+        global $mybb, $db, $cache, $plugins;
 
         if (!self::isAvailable()) {
             return 0;
@@ -48,14 +48,12 @@ class Plottinggroups_Alerts
         try {
             $type_manager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
             if (!$type_manager) {
-                global $db, $cache;
                 $type_manager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
             }
             $alert_manager = MybbStuff_MyAlerts_AlertManager::getInstance();
             if (!$alert_manager && $type_manager) {
                 // MyAlerts creates its instances at global_start; in other
                 // contexts (CLI, early hooks) we create them ourselves.
-                global $db, $cache, $plugins;
                 $alert_manager = MybbStuff_MyAlerts_AlertManager::createInstance(
                     $mybb, $db, $cache, $plugins, $type_manager);
             }
