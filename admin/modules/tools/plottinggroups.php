@@ -26,11 +26,6 @@ $page->add_breadcrumb_item($lang->plottinggroups, 'index.php?module=tools-plotti
 $base_url = 'index.php?module=tools-plottinggroups';
 
 if ($mybb->request_method === 'post') {
-    // Im ACP bricht verify_post_check() nicht ab – Rückgabewert prüfen (debugging.md #23)
-    if (!verify_post_check($mybb->get_input('my_post_key'), true)) {
-        flash_message($lang->invalid_post_verify_key2, 'error');
-        admin_redirect($base_url);
-    }
 
     $sub_action = $mybb->get_input('sub_action');
     $gid        = (int)$mybb->get_input('gid', MyBB::INPUT_INT);
