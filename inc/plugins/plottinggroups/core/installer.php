@@ -285,7 +285,7 @@ class Plottinggroups_Installer
                     'cachefile'    => 'plottinggroups.css',
                 ]);
                 $db->update_query('themestylesheets',
-                    ['cachefile' => "css.php?stylesheet={$sid}"], "sid = '{$sid}'", 1);
+                    ['cachefile' => "css.php?stylesheet={$sid}"], 'sid = ' . (int)$sid, 1);
             }
             update_theme_stylesheet_list($tid);
         }

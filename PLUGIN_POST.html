@@ -1,0 +1,114 @@
+[size=x-large][b]Plotting Groups[/b][/size]
+[i]Version 1.1.0[/i] – Plottinggruppen für RPG-Foren: beitreten, vorschlagen und per #"Gruppenname" im Beitrag die ganze Gruppe benachrichtigen.
+
+[size=large][b]Worum geht's?[/b][/size]
+
+Wer gemeinsam plottet, will sich schnell zusammenfinden und erreichbar sein – ohne PN-Ketten an zehn Personen. Plotting Groups gibt deinem Forum eine eigene Gruppenseite: Mitglieder treten Gruppen mit einem Klick bei, schlagen neue vor, und das Team gibt sie frei. Schreibst du im Beitrag [i]#"Gruppenname"[/i], bekommen alle Mitglieder dieser Gruppe einen Alert. Ein Ereignis-Feed pro Gruppe zeigt, was zuletzt passiert ist.
+
+[size=large][b]Highlights[/b][/size]
+
+[list]
+[*] Gruppen selbst beitreten und verlassen, neue Gruppen vorschlagen
+[*] Gruppe im Beitrag markieren – alle Mitglieder erhalten einen Alert
+[*] Autovervollständigung im Editor und farbige Markierung im fertigen Beitrag
+[*] „Neueste Ereignisse" pro Gruppe, auf Wunsch inklusive Plots aus dem Plot Control Panel
+[*] Öffentliche Schnittstelle für andere Plugins
+[/list]
+
+[size=large][b]Was das Plugin alles kann[/b][/size]
+
+[b]Für Mitglieder[/b]
+[list]
+[*][b]Gruppenseite[/b] – Alle freigegebenen Gruppen mit Beschreibung und Mitgliederzahl. Beitreten und Austreten geht mit einem Klick, ein Klick auf den Namen zeigt die Mitglieder mit Beitrittsdatum. [i](plottinggroups.php)[/i]
+[*][b]Gruppe vorschlagen[/b] – Unter der Liste schlägst du eine neue Gruppe vor; sie erscheint nach der Freigabe durch das Team. [i](plottinggroups.php, abschaltbar)[/i]
+[*][b]Gruppe markieren[/b] – Schreibst du [i]#"Gruppenname"[/i] in eine Antwort oder den ersten Beitrag eines Themas, bekommen alle Mitglieder außer dir einen Alert mit Link zum Beitrag. Mehrere Gruppen auf einmal gehen auch; Zitate werden ignoriert, und beim Bearbeiten wird niemand erneut benachrichtigt. [i](Beiträge in den eingestellten Foren)[/i]
+[*][b]Autovervollständigung[/b] – Tippst du im Editor [i]#[/i], schlägt eine Liste passende Gruppen vor und fügt die Markierung korrekt ein – im WYSIWYG- und im Quelltextmodus. [i](Beitragseditor)[/i]
+[*][b]Markierung als „Pill"[/b] – Im fertigen Beitrag erscheint die Markierung farbig hervorgehoben und verlinkt auf die Mitgliederliste der Gruppe.
+[*][b]Neueste Ereignisse[/b] – Pro Gruppe eine chronologische Liste: Beiträge, in denen die Gruppe markiert wurde, und – mit dem Plot Control Panel – neu veröffentlichte Plots der Gruppe. Jeder Eintrag führt zur Quelle. [i](Mitgliederliste → „Neueste Ereignisse")[/i]
+[/list]
+
+[b]Für Team & Moderation[/b]
+[list]
+[*][b]Vorschläge prüfen[/b] – Freigeben, bearbeiten oder ablehnen. Die Freigabe kündigt die neue Gruppe allen Hauptaccounts an. Solange Vorschläge warten, erinnert ein Hinweis auf der Startseite. [i](ModCP → Plotting Groups oder direkt auf der Gruppenseite)[/i]
+[*][b]Gruppen pflegen[/b] – Freigegebene Gruppen bearbeiten und löschen, Mitglieder hinzufügen und entfernen – direkt auf der Gruppenseite, ohne ins ModCP zu wechseln. [i](plottinggroups.php)[/i]
+[/list]
+
+[b]Für Administratoren[/b]
+[list]
+[*][b]Verwaltung im ACP[/b] – Dieselben Funktionen wie im ModCP; im ACP angelegte Gruppen sind sofort freigegeben. [i](ACP → Werkzeuge → Plotting Groups)[/i]
+[/list]
+
+[b]Läuft automatisch[/b]
+[list]
+[*][b]Übernahme aus dem Plot Control Panel[/b] – Beim ersten Aktivieren übernimmt das Plugin vorhandene Plotgruppen samt Mitgliedern aus dem Plot Control Panel, inklusive ihrer IDs.
+[/list]
+
+[b]Zusammenspiel mit anderen Plugins[/b]
+[list]
+[*][b]MyAlerts[/b] – Alerts für neue Gruppen, neue Vorschläge (Team) und Markierungen; jede Person kann sie im Benutzer-CP einzeln abschalten. Ohne MyAlerts funktioniert alles, nur ohne Benachrichtigungen.
+[*][b]Plot Control Panel[/b] – Plots lassen sich Gruppen zuordnen, neue Plots erscheinen im Ereignis-Feed. Beide Plugins laufen auch einzeln.
+[*][b]Enhanced Account Switcher[/b] – Damit lässt sich der Alert über neue Gruppen auf Hauptaccounts beschränken.
+[/list]
+
+[size=large][b]So sieht's aus[/b][/size]
+
+[i]Screenshot folgt[/i] – Gruppenseite mit Mitgliederliste
+[i]Screenshot folgt[/i] – Autovervollständigung im Editor
+[i]Screenshot folgt[/i] – Neueste Ereignisse einer Gruppe
+
+[size=large][b]Einstellungen[/b][/size]
+
+[list]
+[*][b]Team-Gruppen[/b] – Diese Gruppen prüfen Vorschläge, verwalten Gruppen und erhalten Vorschlags-Alerts. [i](Standard: keine)[/i]
+[*][b]Gruppen-Vorschläge erlauben[/b] – Mitglieder dürfen neue Gruppen vorschlagen. [i](Standard: Ja)[/i]
+[*][b]Foren für Markierungen[/b] – In diesen Foren lösen Markierungen Alerts aus. [i](Standard: keine Auswahl = alle Foren)[/i]
+[*][b]Alert über neue Gruppen nur an Hauptaccounts[/b] – Braucht den Enhanced Account Switcher, sonst ohne Wirkung. [i](Standard: Ja)[/i]
+[*][b]Autovervollständigung[/b] – Vorschlagsliste beim Tippen von # im Editor. [i](Standard: Ja)[/i]
+[/list]
+
+[size=large][b]Voraussetzungen[/b][/size]
+
+[list]
+[*] MyBB 1.8.x
+[*] PHP 7.4 oder 8.x
+[*] Optional: MyAlerts, Plot Control Panel, Enhanced Account Switcher
+[/list]
+
+[size=large][b]Installation[/b][/size]
+
+[list=1]
+[*] Dateien in das MyBB-Stammverzeichnis kopieren (Ordnerstruktur beibehalten)
+[*] ACP → Konfiguration → Plugins → Plotting Groups → Installieren & aktivieren
+[*] ACP → Konfiguration → Einstellungen → Plotting Groups → Team-Gruppen und Optionen festlegen
+[/list]
+Wechselst du vom Plot Control Panel: zuerst Plotting Groups aktivieren (übernimmt die Gruppen), danach das Plot Control Panel aktualisieren und neu aktivieren.
+
+[size=large][b]Update[/b][/size]
+
+[list=1]
+[*] Neue Dateien hochladen und vorhandene überschreiben
+[*] ACP → Konfiguration → Plugins → Plotting Groups → Deaktivieren und wieder Aktivieren
+[/list]
+Templates werden neu eingespielt, neue Tabellen (z. B. für den Ereignis-Feed) angelegt. Gruppen, Mitglieder und Einstellungen bleiben erhalten.
+
+[size=large][b]Für die Entwicklung[/b][/size]
+
+[list]
+[*] [i]Plottinggroups_Api[/i]: [i]approvedGroups()[/i], [i]groupNames()[/i], [i]memberUids()[/i], [i]filterApprovedGids()[/i], [i]groupsUrl()[/i], [i]logEvent()[/i]
+[*] Hook [i]plottinggroups_collect_events[/i] – eigene Ereignisse in den Feed einer Gruppe liefern; jede Zeile wird geprüft, Links nur relativ oder http(s)
+[/list]
+
+[size=large][b]Grenzen & Ausblick[/b][/size]
+
+Markierte Beiträge erscheinen erst ab der Installation von Version 1.1.0 im Ereignis-Feed; ältere lassen sich nicht nachträglich erfassen. Markierungen funktionieren nur mit dem genauen Gruppennamen in Anführungszeichen.
+
+[size=large][b]Download & Quellcode[/b][/size]
+
+&raquo; [url=https://github.com/pand0rica/mybb-plottinggroups]GitHub: pand0rica/mybb-plottinggroups[/url] – Änderungen im [url=https://github.com/pand0rica/mybb-plottinggroups/blob/main/CHANGELOG.md]Changelog[/url], Lizenz GPL-3.0
+
+[size=large][b]Unterstützung[/b][/size]
+
+<i class="cp cp-tea"></i> Wenn dir das Plugin gefällt, kannst du mir gerne einen Tee spendieren: [url=https://ko-fi.com/pand0rica]ko-fi.com/pand0rica[/url]
+
+[size=small]Fragen, Bugs oder Feature-Wünsche gerne als GitHub Issue melden oder hier im Thread.
+Ich freue mich, wenn ihr mir den Link dalasst, wo das Plugin verwendet wird.[/size]

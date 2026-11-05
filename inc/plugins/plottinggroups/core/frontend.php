@@ -72,9 +72,11 @@ class Plottinggroups_Frontend
                     htmlspecialchars_uni((string)$sel_group['name']));
 
                 // "Newest events" button in the panel header (navigation, GET)
-                $plottinggroups_events_button = '<a class="button plottinggroups_button_small" '
-                    . 'href="plottinggroups.php?action=events&amp;gid=' . $selected_gid . '">'
-                    . htmlspecialchars_uni($lang->plottinggroups_btn_events) . '</a>';
+                $plottinggroups_events_button = '<form action="plottinggroups.php" method="get" class="plottinggroups_inline_form">'
+                    . '<input type="hidden" name="action" value="events" />'
+                    . '<input type="hidden" name="gid" value="' . $selected_gid . '" />'
+                    . '<input type="submit" class="button plottinggroups_button_small" value="'
+                    . htmlspecialchars_uni($lang->plottinggroups_btn_events) . '" /></form>';
 
                 $member_rows = '';
                 $altbg = 'trow1';
@@ -188,7 +190,7 @@ class Plottinggroups_Frontend
         global $mybb;
 
         $onsubmit = $confirm !== ''
-            ? ' onsubmit="return confirm(\'' . addslashes($confirm) . '\');"'
+            ? ' onsubmit="return confirm(' . htmlspecialchars_uni((string)json_encode($confirm)) . ');"'
             : '';
 
         $hidden = '';

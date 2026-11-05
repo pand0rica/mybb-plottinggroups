@@ -51,8 +51,8 @@ $l['plottinggroups_error_invalid_group'] = 'Diese Plottinggruppe gibt es nicht.'
 $l['plottinggroups_error_group_name_missing'] = 'Bitte gib einen Gruppennamen ein.';
 $l['plottinggroups_error_group_name_exists'] = 'Eine Plottinggruppe mit diesem Namen existiert bereits.';
 $l['plottinggroups_error_submissions_disabled'] = 'Gruppenvorschläge sind derzeit deaktiviert.';
-$l['plottinggroups_error_user_not_found'] = 'Es wurde kein Benutzer mit diesem Namen gefunden.';
-$l['plottinggroups_error_already_member'] = 'Dieser Benutzer ist bereits Mitglied der Plottinggruppe.';
+$l['plottinggroups_error_user_not_found'] = 'Es wurde kein Account mit diesem Namen gefunden.';
+$l['plottinggroups_error_already_member'] = 'Dieser Account ist bereits in der Plottinggruppe.';
 
 // Teamverwaltung im Frontend
 $l['plottinggroups_edit_group'] = 'Plottinggruppe bearbeiten';
@@ -68,7 +68,7 @@ $l['plottinggroups_btn_cancel'] = 'Abbrechen';
 $l['plottinggroups_confirm_delete_group'] = 'Diese Plottinggruppe inklusive Mitgliedschaften löschen?';
 $l['plottinggroups_add_member'] = 'Mitglied hinzufügen:';
 $l['plottinggroups_btn_add_member'] = 'Hinzufügen';
-$l['plottinggroups_member_added'] = 'Der Benutzer wurde zur Plottinggruppe hinzugefügt.';
+$l['plottinggroups_member_added'] = 'Der Account wurde zur Plottinggruppe hinzugefügt.';
 $l['plottinggroups_group_saved'] = 'Die Plottinggruppe wurde gespeichert.';
 $l['plottinggroups_group_deleted'] = 'Die Plottinggruppe wurde gelöscht.';
 

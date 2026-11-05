@@ -28,11 +28,12 @@
 <tr>
 <td class="tfoot" colspan="2" align="center">
 <input type="submit" class="button" value="{$lang->plottinggroups_btn_save}" />
-<a href="plottinggroups.php" class="button">{$lang->plottinggroups_btn_cancel}</a>
+<input type="submit" class="button" form="plottinggroups_cancel_form" value="{$lang->plottinggroups_btn_cancel}" />
 </td>
 </tr>
 </table>
 </form>
+<form action="plottinggroups.php" method="get" id="plottinggroups_cancel_form"></form>
 {$footer}
 </body>
 </html>

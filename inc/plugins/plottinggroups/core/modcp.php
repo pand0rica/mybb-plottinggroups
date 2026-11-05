@@ -253,7 +253,7 @@ class Plottinggroups_Modcp
         global $mybb;
 
         $onsubmit = $confirm !== ''
-            ? ' onsubmit="return confirm(\'' . addslashes($confirm) . '\');"'
+            ? ' onsubmit="return confirm(' . htmlspecialchars_uni((string)json_encode($confirm)) . ');"'
             : '';
 
         return '<form action="modcp.php" method="post" class="plottinggroups_inline_form"' . $onsubmit . '>'
