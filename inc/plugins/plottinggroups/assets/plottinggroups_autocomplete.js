@@ -458,10 +458,21 @@
 
     // SCEditor can switch between WYSIWYG and source (textarea) at runtime; the
     // source textarea is #message. Poll briefly so we attach to whatever exists.
+    // In source mode SCEditor hides #message and edits in its own textarea inside
+    // .sceditor-container – that one is the one receiving keystrokes.
+    function findSourceTextarea() {
+        return document.querySelector('.sceditor-container textarea');
+    }
+
     function bootstrap() {
         var textarea = document.getElementById('message');
         if (textarea) {
             attachTextarea(textarea);
+        }
+
+        var sourceTa = findSourceTextarea();
+        if (sourceTa) {
+            attachTextarea(sourceTa);
         }
 
         var editor = window.MyBBEditor;
@@ -481,7 +492,7 @@
         // Stop once we have attached to at least the textarea and, if sceditor is
         // used, its body – or give up after ~5s.
         var done = document.getElementById('message') &&
-            (!window.MyBBEditor || (window.MyBBEditor.getBody &&
+            (!window.MyBBEditor || (findSourceTextarea() && window.MyBBEditor.getBody &&
                 (function () {
                     var b = window.MyBBEditor.getBody();
                     b = (b && b.jquery) ? b[0] : b;

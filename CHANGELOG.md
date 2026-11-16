@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed
+- `#` autocomplete now also works when the editor is in source (BBCode) mode, where SCEditor hides the original `#message` textarea.
+
 ### Changed
 - Stylesheet uses plain colour/size values instead of the `--h4w-*` custom properties of one specific forum theme. (Forum-specific theming lives on the separate `h4w` branch.)
 
